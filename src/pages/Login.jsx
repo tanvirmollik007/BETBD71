@@ -1,35 +1,45 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  const handleLogin = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert(`Logging in with username: ${username}`);
+    const auth = getAuth();
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      navigate('/'); // 🔁 সফল Login হলে Home পেইজে যাবে
+    } catch (err) {
+      setError('Invalid email or password');
+    }
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto' }}>
+    <div>
       <h2>Login</h2>
-      <form onSubmit={handleLogin}>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <form onSubmit={handleSubmit}>
         <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          style={{ display: 'block', margin: '10px 0', width: '100%' }}
-        />
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        /><br />
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          style={{ display: 'block', margin: '10px 0', width: '100%' }}
-        />
-        <button type="submit" style={{ width: '100%', padding: '10px' }}>
-          Login
-        </button>
+          required
+        /><br />
+        <button type="submit">Login</button>
       </form>
     </div>
   );
